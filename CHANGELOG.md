@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.0
+
+- Requires PHP 8.5.
+
 ## 0.3.0
 
 - Declares its settings under `extra.ring-master` for Ringside (Ring Master's per-repo plugin), which replaces agent-kit. Ringside still reads `extra.agent-kit`, so older installs keep working until they migrate.
