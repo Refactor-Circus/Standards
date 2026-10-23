@@ -1,0 +1,6 @@
+# Suite-wide PHPStan rules, auto-included in every package by
+# phpstan/extension-installer (see extra.phpstan.includes in composer.json).
+# A package's own phpstan.neon.dist still sets its level, paths and
+# ignoreErrors; only rules every package must share belong here.
+parameters:
+    reportUnmatchedIgnoredErrors: true

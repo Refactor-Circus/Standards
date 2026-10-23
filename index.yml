@@ -1,0 +1,32 @@
+# Shared standards index: <category>/<name> => description, tags, enforced_by.
+# agent-kit merges this with each package's local docs/agent/standards/ layer.
+
+architecture/actions-events:
+  description: "Action execute()/handle() split; {Action}Data input; starting + finished ActionEvent pair per action; DB::transaction in perform(); finished events after commit; concrete return types; no model constructor DI"
+  tags: [architecture, actions, events]
+  enforced_by: [pest-arch]
+
+architecture/domain-modules:
+  description: "Code lives in src/Domains/{Domain} modules, each with its own provider registered by Domains\\DomainServiceProvider; models are {Entity}Model; moved models keep their old class name as a morph alias"
+  tags: [architecture, layout, naming]
+  enforced_by: []
+
+architecture/request-persist:
+  description: "FormRequests own validation, policy authorization (allows/allowsEach) and work via abstract persist(); controllers collapse to return $request->persist(); actions do the writing, never controllers"
+  tags: [architecture, http, requests, controllers]
+  enforced_by: [pest-arch]
+
+models/lifecycle-events:
+  description: "DispatchesModelEvents trait maps every Eloquent hook to Domains\\{Domain}\\Events\\{Entity}{Hook}Event implementing ModelLifecycleEvent; lifecycle events for data concerns, ActionEvents for business logic"
+  tags: [models, events, eloquent]
+  enforced_by: [pest-arch]
+
+php/quality-gates:
+  description: "composer test is the gate: PHPStan, Pint check, 100% type coverage, tests; strict types everywhere; env() only in config; no dd/dump/exit"
+  tags: [php, ci, strict-types, pint, phpstan]
+  enforced_by: [pest-arch, phpstan, pint]
+
+testing/pest-style:
+  description: "Pest it() with a behavior phrase and fluent expect() chains; ->and() for related assertions; ->toBe() for exact values; ->throws() modifier for exceptions; no describe() or class methods"
+  tags: [testing, pest]
+  enforced_by: []

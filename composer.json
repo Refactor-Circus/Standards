@@ -1,0 +1,92 @@
+{
+    "$schema": "https://getcomposer.org/schema.json",
+    "name": "refactor-circus/standards",
+    "description": "Shared coding standards, arch preset, PHPStan rules and Pint config for the Refactor Circus package suite.",
+    "type": "phpstan-extension",
+    "keywords": [
+        "refactor-circus",
+        "standards",
+        "agent-kit"
+    ],
+    "homepage": "https://github.com/Refactor-Circus/Standards",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Jay Fletcher",
+            "email": "5743488+jayjfletcher@users.noreply.github.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^8.3"
+    },
+    "require-dev": {
+        "laravel/pint": "^1.32.1",
+        "pestphp/pest": "^5.3.1",
+        "symfony/yaml": "^7.2|^8.0"
+    },
+    "conflict": {
+        "pestphp/pest": "<4.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "RefactorCircus\\Standards\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "RefactorCircus\\Standards\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "lint": [
+            "vendor/bin/pint --parallel"
+        ],
+        "lint:check": [
+            "vendor/bin/pint --parallel --test"
+        ],
+        "test:unit": [
+            "vendor/bin/pest"
+        ],
+        "test": [
+            "@lint:check",
+            "@test:unit"
+        ]
+    },
+    "extra": {
+        "phpstan": {
+            "includes": [
+                "phpstan/rules.neon"
+            ]
+        },
+        "agent-kit": {
+            "priority": 10,
+            "root": "standards",
+            "index": "index.yml",
+            "pint": "pint.json",
+            "pest-preset": {
+                "class": "RefactorCircus\\Standards\\Pest\\ArchPreset",
+                "name": "refactorCircus"
+            },
+            "paths": {
+                "testing": [
+                    "tests/**"
+                ],
+                "models": [
+                    "src/**/Models/**"
+                ]
+            }
+        }
+    },
+    "suggest": {
+        "refactor-circus/agent-kit": "Renders these standards into Claude Code skills and keeps the index in sync (^0.1)."
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
