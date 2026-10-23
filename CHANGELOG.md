@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.0
+
+- Declares its settings under `extra.ring-master` for Ringside (Ring Master's per-repo plugin), which replaces agent-kit. Ringside still reads `extra.agent-kit`, so older installs keep working until they migrate.
+
 ## 0.2.0
 
 - 22 architectural standards across architecture, actions, data, models, http, errors and testing, written package-neutral with a Refactor Circus reference implementation section where Keystone applies.

@@ -7,7 +7,7 @@
         "laravel",
         "architecture",
         "standards",
-        "agent-kit"
+        "ringside"
     ],
     "homepage": "https://github.com/Refactor-Circus/Standards",
     "license": "MIT",
@@ -60,7 +60,7 @@
                 "phpstan/rules.neon"
             ]
         },
-        "agent-kit": {
+        "ring-master": {
             "priority": 10,
             "kind": "architectural",
             "root": "standards",
@@ -102,7 +102,7 @@
         }
     },
     "suggest": {
-        "refactor-circus/agent-kit": "Renders these standards into Claude Code skills and keeps the index in sync (^0.2)."
+        "refactor-circus/ringside": "Renders these standards into Claude Code skills and keeps the index in sync (^0.1)."
     },
     "config": {
         "sort-packages": true,

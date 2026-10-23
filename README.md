@@ -1,21 +1,21 @@
 # refactor-circus/standards
 
-Global architectural standards for Laravel packages, plus the tooling that enforces them. Used by the Refactor Circus suite through [agent-kit](https://github.com/Refactor-Circus/AgentKit), and usable by anyone.
+Global architectural standards for Laravel packages, plus the tooling that enforces them. Used by the Refactor Circus suite through [Ringside](https://github.com/Refactor-Circus/Ringside), and usable by anyone.
 
 Every standard here is architectural: naming, domain-driven module layout, dependencies, providers, container bindings, public API, configuration, actions and events, data and value objects, models, migrations, stored identifiers, requests, authorization, routes, resources, exceptions, and test architecture. Package-specific rules belong in each package's own `docs/agent/standards/`, which can override any standard here by key.
 
 | Part | Path |
 | --- | --- |
 | Standards (22) | `standards/<category>/<name>.md`, indexed in `index.yml` |
-| Seeds (project starters, not global) | `seeds/` — copied with `agent-kit install --seed` |
+| Seeds (project starters, not global) | `seeds/` — copied with `ringside install --seed` |
 | Arch preset `refactorCircus` | `src/Pest/ArchPreset.php` |
 | PHPStan include | `phpstan/rules.neon`, auto-included by `phpstan/extension-installer` |
-| Pint config | `pint.json`, the copy `agent-kit check` compares each package against |
+| Pint config | `pint.json`, the copy `ringside check` compares each package against |
 
 ## Use
 
 ```yaml
-# agent-kit.yml
+# ring-master.yml
 standards:
   global:
     - { package: refactor-circus/standards, strict: true }
@@ -31,7 +31,7 @@ ArchPreset::register();   // your root package's own namespaces; or ArchPreset::
 arch()->preset()->refactorCircus();
 ```
 
-`agent-kit install` adds both PHP lines for you. Opt out of a rule for a while with `->ignoring(...)`.
+`ringside install` adds both PHP lines for you. Opt out of a rule for a while with `->ignoring(...)`.
 
 Each standard states the pattern without assuming any package; where the suite implements it with shared code from `refactor-circus/keystone`, a closing "Reference implementation" section says how.
 
