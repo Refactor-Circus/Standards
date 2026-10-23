@@ -1,3 +1,8 @@
+---
+description: "Pest it() with a behavior phrase and fluent expect() chains; ->and() for related assertions; ->toBe() for exact values; ->throws() modifier for exceptions; no describe() or class methods"
+tags: [testing, pest]
+kind: convention
+---
 # Pest Style
 
 Tests use Pest `it()` with a behavior phrase and fluent `expect()` chains. No class methods, no `describe()` blocks; `test()` only rarely.

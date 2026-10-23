@@ -32,12 +32,18 @@ it('indexes every standard file and nothing else', function () {
     expect($keys)->toBe(standardFiles());
 });
 
-it('gives every standard a description, tags and enforced_by', function () {
+it('gives every standard a description, tags, kind and enforced_by', function () {
     foreach (standardsIndex() as $key => $entry) {
-        expect($entry)->toHaveKeys(['description', 'tags', 'enforced_by'])
+        expect($entry)->toHaveKeys(['description', 'tags', 'kind', 'enforced_by'])
             ->and($entry['description'])->toBeString()->not->toBeEmpty()
             ->and($entry['tags'])->toBeArray()
             ->and($entry['enforced_by'])->toBeArray();
+    }
+});
+
+it('holds architectural standards only', function () {
+    foreach (standardsIndex() as $key => $entry) {
+        expect($entry['kind'])->toBe('architectural', "{$key} is not architectural");
     }
 });
 

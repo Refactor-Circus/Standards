@@ -1,32 +1,114 @@
-# Shared standards index: <category>/<name> => description, tags, enforced_by.
-# agent-kit merges this with each package's local docs/agent/standards/ layer.
-
-architecture/actions-events:
-  description: "Action execute()/handle() split; {Action}Data input; starting + finished ActionEvent pair per action; DB::transaction in perform(); finished events after commit; concrete return types; no model constructor DI"
-  tags: [architecture, actions, events]
-  enforced_by: [pest-arch]
+# Global architectural standards: <category>/<name> => description, tags, kind, enforced_by.
+# Every entry is kind: architectural. Package-specific rules belong in each package's
+# own docs/agent/standards/, which can override any entry here by key.
 
 architecture/domain-modules:
-  description: "Code lives in src/Domains/{Domain} modules, each with its own provider registered by Domains\\DomainServiceProvider; models are {Entity}Model; moved models keep their old class name as a morph alias"
-  tags: [architecture, layout, naming]
+  description: "Domain module layout under src/Domains/{Domain}/ (Models, Policies, Data, Actions, Events, Http, Services; subdirs only when used), one {Domain}ServiceProvider per domain registered by Domains\\DomainServiceProvider's $providers loop, top-level package-wide code, one config file, morph aliases for moved models."
+  tags: [architecture, domains, layout, service-providers]
+  kind: architectural
   enforced_by: []
-
-architecture/request-persist:
-  description: "FormRequests own validation, policy authorization (allows/allowsEach) and work via abstract persist(); controllers collapse to return $request->persist(); actions do the writing, never controllers"
-  tags: [architecture, http, requests, controllers]
+architecture/naming:
+  description: "Class and file naming: {Entity}Model, {Verb}{Entity}Action, {Action}Data, {Entity}{Verb-ing|Verb-ed}ActionEvent, {Entity}{Hook}Event, {Entity}Policy, {Entity}Controller, Index/Store/Show/Update/Delete{Entity}Request, {Entity}Resource, {Reason}Exception on a {Package}Exception base, {Domain}ServiceProvider; one class per file, PSR-4."
+  tags: [architecture, naming, psr-4]
+  kind: architectural
+  enforced_by: []
+architecture/dependencies:
+  description: "What may depend on what: domains change each other's data only through actions and react through events, core never imports integrations, shared runtime only from the base package, optional integrations kept out of require and referenced behind class_exists()/active(), no feature-flag package required of consumers."
+  tags: [architecture, dependencies, composer, integrations, feature-flags]
+  kind: architectural
+  enforced_by: []
+architecture/service-providers:
+  description: "Service provider wiring: bindings and mergeConfigFrom in register(), resource loading in boot(), publishes/commands behind runningInConsole(), dual publish tags {package} + {package}-config/views/lang/migrations, optional surfaces registered from config with a strict === true check, no env() outside config."
+  tags: [architecture, service-providers, config, publish-tags]
+  kind: architectural
+  enforced_by: []
+architecture/container-bindings:
+  description: "Depend on package contracts, not concretes or vendor clients; wrap third-party clients behind a contract and adapter; pick singleton (code/config state), scoped (memoized DB/request state, Octane/queues) or bind (per-call builders) on purpose in register(); actions never bound; lazy cached connections forget their instances on purge."
+  tags: [architecture, container, dependency-injection, service-providers]
+  kind: architectural
+  enforced_by: []
+architecture/public-api:
+  description: "Thin static {Package} entry point and facade that wires config and delegates to instances that work without it; facade @method static docblock matches every public method; classes final by default; documented extension points only; host-framework overrides adapt then delegate; public private(set) state, private closures."
+  tags: [architecture, public-api, facade, extension-points]
+  kind: architectural
+  enforced_by: []
+architecture/configuration:
+  description: "One self-documenting config/{package}.php with a banner per section (what it controls, values, security and auth middleware for routes); env() only in config; caller options win, cast plus hard default on every read; safe security defaults; opt-in flags false and boolean-coerced; fail loud on a missing entry; table names configurable via {package}.tables."
+  tags: [architecture, config, tables, defaults]
+  kind: architectural
   enforced_by: [pest-arch]
-
+actions/actions-events:
+  description: "Actions: callers use execute(), action implements protected handle() with a concrete return type and {Action}Data input; starting event, private perform() in DB::transaction(), finished event after commit; read actions have no transaction/events; no model constructor DI; final Dispatchable/SerializesModels event pair."
+  tags: [actions, events, transactions]
+  kind: architectural
+  enforced_by: [pest-arch]
+actions/domain-guards:
+  description: "Business-rule failures in actions throw field-keyed ValidationException::withMessages, never custom domain exceptions, abort() or HttpException; guards live in the action, cover database/state checks beyond rules(), and roll back inside the transaction."
+  tags: [actions, validation, errors]
+  kind: architectural
+  enforced_by: []
+data/data-objects:
+  description: "Action input is a final readonly {Action}Data in the domain's Data/, never an array: camelCase promoted properties, T|Missing = new Missing for partial updates, static rules() on the Data, nested Data via #[ListOf]; requests use XData::rules()/fromValidated(), untrusted input XData::from(), trusted code new XData()."
+  tags: [data, actions, validation]
+  kind: architectural
+  enforced_by: [pest-arch]
+data/value-objects:
+  description: "Value objects expose state as public private(set) properties, not getters, set via fluent setters named like the property; internals and closures private; option sets as string-backed enums with behavior on the enum; readonly options objects instead of long parameter lists; static-only stateless helpers."
+  tags: [data, php]
+  kind: architectural
+  enforced_by: []
+models/models:
+  description: "Package Eloquent models: {Entity}Model in Domains/{Domain}/Models, table via getTable() from a configurable {package}.tables map (never literal names), a policy per model from {package}.policies, @property docblocks, typed relation generics, casts, package newFactory(), morph alias on move."
+  tags: [models, eloquent, tables, policies, configuration]
+  kind: architectural
+  enforced_by: [pest-arch]
 models/lifecycle-events:
-  description: "DispatchesModelEvents trait maps every Eloquent hook to Domains\\{Domain}\\Events\\{Entity}{Hook}Event implementing ModelLifecycleEvent; lifecycle events for data concerns, ActionEvents for business logic"
-  tags: [models, events, eloquent]
+  description: "Model lifecycle events: a trait maps every Eloquent hook to a final {Entity}{Hook}Event (Dispatchable, SerializesModels, lifecycle contract), fired synchronously so creating/saving can cancel; soft-delete hooks when used; test asserts every hook fires; lifecycle vs action events."
+  tags: [models, eloquent, events, lifecycle, soft-deletes]
+  kind: architectural
   enforced_by: [pest-arch]
-
-php/quality-gates:
-  description: "composer test is the gate: PHPStan, Pint check, 100% type coverage, tests; strict types everywhere; env() only in config; no dd/dump/exit"
-  tags: [php, ci, strict-types, pint, phpstan]
-  enforced_by: [pest-arch, phpstan, pint]
-
-testing/pest-style:
-  description: "Pest it() with a behavior phrase and fluent expect() chains; ->and() for related assertions; ->toBe() for exact values; ->throws() modifier for exceptions; no describe() or class methods"
-  tags: [testing, pest]
+models/migrations:
+  description: "Package migrations: fixed date + incrementing sequence filenames, one anonymous-class file per feature's tables, table names and FK targets from the same configurable tables keys as the models, down() in reverse order, publishable via publishesMigrations() and a {package}-migrations tag."
+  tags: [migrations, database, schema, tables, publishing]
+  kind: architectural
+  enforced_by: [pest-arch]
+models/stored-identifiers:
+  description: "Stored and external identifiers: inputs reference records by slug (plus integer version when versioned), never internal id, validated with Rule::exists on the configured table and resolved to FKs in the action; host users by route key; moved models keep their old class as morph alias, tested."
+  tags: [models, slugs, identifiers, morph-map, polymorphic, validation]
+  kind: architectural
   enforced_by: []
+http/request-persist:
+  description: "Each HTTP operation is a {Verb}{Entity}Request extending the package Request: authorize() via policy, rules() from {Action}Data::rules(), abstract persist() calls one action and returns a resource response; controllers only return $request->persist(); route-model helper aborts 404"
+  tags: [http, requests, controllers, validation]
+  kind: architectural
+  enforced_by: [pest-arch]
+http/authorization:
+  description: "Every model has a policy registered from the {package}.policies config; authorize() calls allows()/allowsEach() (viewAny/create on the class, view/update/delete on the instance); child-model policies defer to the parent via the Gate; route middleware gate runs first; guest 401 vs 403"
+  tags: [http, authorization, policies, gate]
+  kind: architectural
+  enforced_by: [pest-arch]
+http/routes:
+  description: "Each domain's routes in src/Domains/{Domain}/routes.php, loaded by its provider inside one shared group whose prefix/domain/middleware/name prefix come from config; explicit named routes ({package}.resource.operation), slug binding, no Route::resource(), POST verb segments for domain operations"
+  tags: [http, routes]
+  kind: architectural
+  enforced_by: []
+http/resources:
+  description: "Every payload serializes through a final JSON resource: model resources beside the model in Domains/{Domain}/Resources, model-less payloads in Http/Resources; slug not id, whenLoaded() relations, ISO-8601 timestamps; the same resource feeds every surface so payloads stay identical"
+  tags: [http, resources, serialization, api]
+  kind: architectural
+  enforced_by: []
+errors/exceptions:
+  description: "One {Package}Exception base in src/Exceptions with final domain subclasses in Domains/{Domain}/Exceptions for runtime failures (forX() named constructors, [identifier] messages); vendor exceptions wrapped with operation context and previous kept; no raw SPL exceptions; business-rule failures are ValidationException guards, not exceptions."
+  tags: [errors, exceptions, architecture]
+  kind: architectural
+  enforced_by: []
+testing/test-layers:
+  description: "Behavior is tested once at the action (ActionsTest); HTTP, console and other surfaces test only their own wiring (status, validation, authorization, payload); route names not URLs; tests/Unit framework-free vs tests/Feature booting Testbench; layer table"
+  tags: [testing, architecture, layers]
+  kind: architectural
+  enforced_by: []
+testing/arch-tests:
+  description: "Every package has tests/ArchTest.php running arch()->preset()->php(), security() and the shared refactorCircus preset, bans dd/ddd/env/exit, enforces strict types, plus rules for Data inputs, action event pairs, writes in transactions, model event gaps, literal table names, models without policies, requests owning persist()"
+  tags: [testing, arch, pest]
+  kind: architectural
+  enforced_by: [pest-arch]

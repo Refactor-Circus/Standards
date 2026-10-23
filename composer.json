@@ -1,10 +1,11 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
     "name": "refactor-circus/standards",
-    "description": "Shared coding standards, arch preset, PHPStan rules and Pint config for the Refactor Circus package suite.",
+    "description": "Shared architectural standards for Laravel packages, with the tooling that enforces them: an arch preset, a PHPStan include and a Pint config.",
     "type": "phpstan-extension",
     "keywords": [
-        "refactor-circus",
+        "laravel",
+        "architecture",
         "standards",
         "agent-kit"
     ],
@@ -61,25 +62,47 @@
         },
         "agent-kit": {
             "priority": 10,
+            "kind": "architectural",
             "root": "standards",
             "index": "index.yml",
+            "seeds": "seeds",
             "pint": "pint.json",
             "pest-preset": {
                 "class": "RefactorCircus\\Standards\\Pest\\ArchPreset",
                 "name": "refactorCircus"
             },
             "paths": {
+                "models": [
+                    "src/**/Models/**",
+                    "database/migrations/**"
+                ],
+                "http": [
+                    "src/**/Http/**",
+                    "routes/**",
+                    "src/**/routes.php"
+                ],
+                "actions": [
+                    "src/**/Actions/**",
+                    "src/**/Events/**"
+                ],
+                "data": [
+                    "src/**/Data/**"
+                ],
                 "testing": [
                     "tests/**"
                 ],
-                "models": [
-                    "src/**/Models/**"
+                "errors": [
+                    "src/**/Exceptions/**"
                 ]
+            },
+            "renames": {
+                "architecture/actions-events": "actions/actions-events",
+                "architecture/request-persist": "http/request-persist"
             }
         }
     },
     "suggest": {
-        "refactor-circus/agent-kit": "Renders these standards into Claude Code skills and keeps the index in sync (^0.1)."
+        "refactor-circus/agent-kit": "Renders these standards into Claude Code skills and keeps the index in sync (^0.2)."
     },
     "config": {
         "sort-packages": true,

@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.0
+
+- 22 architectural standards across architecture, actions, data, models, http, errors and testing, written package-neutral with a Refactor Circus reference implementation section where Keystone applies.
+- Every index entry has `kind: architectural`; the test suite enforces it.
+- `testing/pest-style` moved to `seeds/` (copied into a project with `agent-kit install --seed`); `php/quality-gates` removed.
+- `ArchPreset::register()` applies to the root package's own autoload namespaces by default, or to prefixes you pass.
+
 ## 0.1.0
 
 - Seed standards: architecture (actions-events, domain-modules, request-persist), models (lifecycle-events), php (quality-gates), testing (pest-style). The architecture and model standards come from Atrium's copies, generalized for the suite.
