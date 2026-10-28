@@ -16,7 +16,8 @@ function standardFiles(): array
 
     foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($root, FilesystemIterator::SKIP_DOTS)) as $file) {
         if ($file->getExtension() === 'md') {
-            $files[] = substr($file->getPathname(), strlen($root), -3);
+            // Index keys use `/`; Windows paths come back with `\`.
+            $files[] = str_replace('\\', '/', substr($file->getPathname(), strlen($root), -3));
         }
     }
 
