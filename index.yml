@@ -33,12 +33,12 @@ architecture/public-api:
   kind: architectural
   enforced_by: []
 architecture/configuration:
-  description: "One self-documenting config/{package}.php with a banner per section (what it controls, values, security and auth middleware for routes); env() only in config; caller options win, cast plus hard default on every read; safe security defaults; opt-in flags false and boolean-coerced; fail loud on a missing entry; table names configurable via {package}.tables."
-  tags: [architecture, config, tables, defaults]
+  description: "One self-documenting config/{package}.php with a banner per section (what it controls, values, security, auth middleware for routes); env() only in config; caller options win, cast and default every read; safe security defaults; opt-in flags false and boolean-coerced; fail loud on a missing entry; {package}.tables names; optional own DB via {package}.database.connection."
+  tags: [architecture, config, tables, defaults, database, connection]
   kind: architectural
   enforced_by: [pest-arch]
 actions/actions-events:
-  description: "Actions: callers use execute(), action implements protected handle() with a concrete return type and {Action}Data input; starting event, private perform() in DB::transaction(), finished event after commit; read actions have no transaction/events; no model constructor DI; final Dispatchable/SerializesModels event pair."
+  description: "Actions: callers use execute(), action implements protected handle() with a concrete return type and {Action}Data input; starting event, private perform() in a transaction on the package connection, finished event after commit; read actions have no transaction/events; no model constructor DI; final Dispatchable/SerializesModels event pair."
   tags: [actions, events, transactions]
   kind: architectural
   enforced_by: [pest-arch]
@@ -58,7 +58,7 @@ data/value-objects:
   kind: architectural
   enforced_by: []
 models/models:
-  description: "Package Eloquent models: {Entity}Model in Domains/{Domain}/Models, table via getTable() from a configurable {package}.tables map (never literal names), a policy per model from {package}.policies, @property docblocks, typed relation generics, casts, package newFactory(), morph alias on move."
+  description: "Package Eloquent models: {Entity}Model in Domains/{Domain}/Models, table via getTable() from a configurable {package}.tables map (never literal names), getConnectionName() from {package}.database.connection, a policy per model from {package}.policies, @property docblocks, typed relation generics, casts, package newFactory(), morph alias on move."
   tags: [models, eloquent, tables, policies, configuration]
   kind: architectural
   enforced_by: [pest-arch]
@@ -68,7 +68,7 @@ models/lifecycle-events:
   kind: architectural
   enforced_by: [pest-arch]
 models/migrations:
-  description: "Package migrations: fixed date + incrementing sequence filenames, one anonymous-class file per feature's tables, table names and FK targets from the same configurable tables keys as the models, down() in reverse order, publishable via publishesMigrations() and a {package}-migrations tag."
+  description: "Package migrations: fixed date + incrementing sequence filenames, one anonymous-class file per feature's tables, table names and FK targets from the same configurable tables keys as the models, getConnection() from the package connection, down() in reverse order, publishable via publishesMigrations() and a {package}-migrations tag."
   tags: [migrations, database, schema, tables, publishing]
   kind: architectural
   enforced_by: [pest-arch]

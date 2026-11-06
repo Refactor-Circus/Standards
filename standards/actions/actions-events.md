@@ -25,7 +25,7 @@ final class Create{Entity}Action extends Action
 
     private function perform(Create{Entity}Data $data, ?Model $owner): {Entity}Model
     {
-        return DB::transaction(fn (): {Entity}Model => {Entity}Model::query()->create([...]));
+        return Tables::db()->transaction(fn (): {Entity}Model => {Entity}Model::query()->create([...]));
     }
 }
 ```
@@ -38,7 +38,7 @@ final class Create{Entity}Action extends Action
 ## Transactions & events
 
 - `handle()` dispatches the **starting** event with the input, calls a private `perform()`, dispatches the **finished** event with the result, and returns it.
-- Every write in a mutating `perform()` — even a single one — goes inside `DB::transaction()`.
+- Every write in a mutating `perform()` — even a single one — goes inside a transaction on the package's connection (`Tables::db()->transaction()`, not `DB::transaction()`, which opens it on the default connection); see [[configuration]].
 - Finished events dispatch after commit (`ShouldDispatchAfterCommit`), so they wait for the outermost transaction and never fire on rollback. An action that throws fires its starting event and no finished event.
 - When a caller needs post-commit column values, `return $model->refresh();` **outside** the transaction.
 

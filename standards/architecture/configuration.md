@@ -39,6 +39,12 @@ Each package has one config file, `config/{package}.php`, that documents itself,
 - Table names are configurable through a `{package}.tables` map of key to default name. Models resolve `getTable()` from it and migrations use the same keys, never a literal table name; see [[models]] and [[migrations]].
 - A published config that lists only some tables keeps the defaults for the rest.
 
+## Database connection
+
+- Every package that owns tables lets a host keep them on a dedicated connection through `{package}.database.connection` (env default `{PACKAGE}_DB_CONNECTION`), documented in its own config section. Null, the default, means the app's default connection.
+- Everything that touches the package's tables uses that connection: models (`getConnectionName()`), migrations (`getConnection()`), raw queries, schema checks, transactions and `exists`/`unique` rules (`{connection}.{table}`). Never the `DB` facade or an injected default `ConnectionInterface`, which go to the default connection.
+- Joins, subqueries and `whereHas` across the package's tables and host tables (users, teams) only work while both sit on one database; the config section says so.
+
 ## Reference implementation (Refactor Circus)
 
-Each package's `Support\Tables` extends Keystone's `Database\Tables`, setting `CONFIG = '{package}.tables'` and `DEFAULTS`; `Tables::name('{entities}')` serves models and migrations. `tests/ArchTest.php` rejects literal table names with Keystone's `Arch::literalTableNames()`. `Support\ServiceProvider::loadApiRoutesFrom()` reads `routes.enabled`, `routes.prefix` and `routes.middleware` from the package config.
+Each package's `Support\Tables` extends Keystone's `Database\Tables`, setting `CONFIG = '{package}.tables'` and `DEFAULTS`; `Tables::name('{entities}')` serves models and migrations. `Tables::connection()` reads `{package}.database.connection`, `Tables::db()` is that connection for queries and transactions, and `Tables::qualified('{entities}')` names a table for validation rules. `tests/ArchTest.php` rejects literal table names with Keystone's `Arch::literalTableNames()` and default-connection access with `Arch::defaultConnectionUses()`. `Support\ServiceProvider::loadApiRoutesFrom()` reads `routes.enabled`, `routes.prefix` and `routes.middleware` from the package config.
