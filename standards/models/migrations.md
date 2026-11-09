@@ -28,6 +28,19 @@ Schema::create(Tables::name('{entity}_items'), function (Blueprint $table): void
 });
 ```
 
+## Connection
+
+- Each migration returns the package's configured connection from `getConnection()`, so its tables are created on the package's own database when one is configured (`{package}.database.connection`; null is the app default). Laravel runs `up()`/`down()` with that connection as the default, so `Schema::` inside them follows it.
+
+```php
+public function getConnection(): ?string
+{
+    return Tables::connection();
+}
+```
+
+- Foreign keys only reach tables on the same connection. A key to a host table (users) is a plain indexed column when the package may live on its own database.
+
 ## Loading and publishing
 
 - The package service provider loads migrations from `database/migrations` and registers them with `publishesMigrations()` under the package tag and a `{package}-migrations` tag, so a host can publish and edit them. See [[service-providers]].

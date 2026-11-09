@@ -10,6 +10,7 @@ A package model is `{Entity}Model` in `Domains/{Domain}/Models`, resolves its ta
 ## Tables
 
 - Override `getTable()` to return the table's configured name by key, from the package's tables class (backed by the `{package}.tables` config). Never set `$table` to a literal or write a prefixed table name anywhere else — package tables live in a host app, which may need to rename them.
+- Override `getConnectionName()` to return the model's own connection when set, else the package's configured connection (`{package}.database.connection`), so a host can move the package to its own database; see [[configuration]].
 - Default names carry the package prefix (`{package}_{entities}`), so they don't collide with host tables.
 - Migrations, validation rules (`Rule::exists(...)`) and joins ask the same tables class with the same keys; see [[migrations]] and [[configuration]].
 
@@ -40,6 +41,11 @@ class {Entity}Model extends Model
     public function getTable(): string
     {
         return Tables::name('{entities}');
+    }
+
+    public function getConnectionName(): ?string
+    {
+        return $this->connection ?? Tables::connection();
     }
 }
 ```

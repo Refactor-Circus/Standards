@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Packages that own tables support a dedicated database connection, `{package}.database.connection`: models, migrations, raw queries, transactions and validation rules all use it (configuration, models, migrations, actions-events).
+
 ## 0.4.0
 
 - Requires PHP 8.5.
